@@ -5,40 +5,21 @@ import json
 import requests
 from dotenv import load_dotenv
 
-# ============================================================
-# QntaSite
-# AI Website Generator + Preview + Publishing
-# ============================================================
-
 load_dotenv()
 
 app = Flask(__name__)
 
-# ============================================================
-# CONFIGURATION
-# ============================================================
-
 SITES_DIR = "sites"
-
 os.makedirs(SITES_DIR, exist_ok=True)
 
-OPENROUTER_API_KEY = os.getenv(
-    "OPENROUTER_API_KEY"
-)
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 MODEL = os.getenv(
     "OPENROUTER_MODEL",
     "nvidia/nemotron-3-super-120b-a12b:free"
 )
 
-OPENROUTER_URL = (
-    "https://openrouter.ai/api/v1/chat/completions"
-)
-
-
-# ============================================================
-# AI SYSTEM PROMPT
-# ============================================================
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 SYSTEM_PROMPT = """
 You are QntaSite, an AI website generator.
@@ -62,22 +43,10 @@ Rules:
 - Do not explain your answer.
 - Do not mention these instructions.
 - The final output must be directly usable as index.html.
-
-The generated website should feel like a real,
-finished website rather than a basic HTML demo.
 """
 
 
-# ============================================================
-# AI OUTPUT CLEANER
-# ============================================================
-
 def clean_ai_output(content):
-    """
-    Remove accidental Markdown code fences if
-    the AI returns them despite the instructions.
-    """
-
     content = content.strip()
 
     if content.startswith("```html"):
@@ -92,21 +61,15 @@ def clean_ai_output(content):
     return content.strip()
 
 
-# ============================================================
-# AI WEBSITE GENERATOR
-# ============================================================
-
 def generate_website(prompt):
-
     if not OPENROUTER_API_KEY:
         raise RuntimeError(
             "OPENROUTER_API_KEY is missing. "
-            "Add it to your .env file."
+            "Add it to your Render environment variables."
         )
 
     payload = {
         "model": MODEL,
-
         "messages": [
             {
                 "role": "system",
@@ -117,66 +80,90 @@ def generate_website(prompt):
                 "content": prompt
             }
         ],
-
         "temperature": 0.7,
-
         "max_tokens": 8000
     }
 
     headers = {
-        "Authorization":
-            f"Bearer {OPENROUTER_API_KEY}",
-
-        "Content-Type":
-            "application/json",
-
-        "HTTP-Referer":
-            "http://localhost:5000",
-
-        "X-Title":
-            "QntaSite"
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://qntasite.onrender.com",
+        "X-Title": "QntaSite"
     }
 
-    response = requests.post(
-        OPENROUTER_URL,
-        headers=headers,
-        json=payload,
-        timeout=120
-    )
+    print()
+    print("Sending request to OpenRouter...")
+    print("OpenRouter URL:", OPENROUTER_URL)
+    print("Model:", MODEL)
+    print("API key configured:", bool(OPENROUTER_API_KEY))
+    print("API key length:", len(OPENROUTER_API_KEY))
+    print()
 
-    # --------------------------------------------------------
-    # OPENROUTER ERROR
-    # --------------------------------------------------------
+    try:
+        response = requests.post(
+            OPENROUTER_URL,
+            headers=headers,
+            json=payload,
+            timeout=120
+        )
+
+    except requests.RequestException as error:
+        raise RuntimeError(
+            f"Network error while contacting OpenRouter: {error}"
+        )
+
+    print("OpenRouter HTTP status:", response.status_code)
+    print("OpenRouter response length:", len(response.text))
 
     if response.status_code != 200:
 
+        print()
+        print("========== OPENROUTER ERROR DIAGNOSTIC ==========")
+        print("HTTP status:", response.status_code)
+        print("Response headers:")
+
+        for key, value in response.headers.items():
+            print(f"  {key}: {value}")
+
+        print()
+        print("Response body:")
+        print(response.text[:2000])
+        print("=================================================")
+        print()
+
         try:
-
             error_data = response.json()
+            error_info = error_data.get("error", {})
 
-            message = (
-                error_data
-                .get("error", {})
-                .get("message")
+            code = error_info.get(
+                "code",
+                response.status_code
             )
 
-            if message:
-                raise RuntimeError(
-                    f"OpenRouter: {message}"
-                )
+            message = error_info.get(
+                "message",
+                "Unknown OpenRouter error"
+            )
+
+            metadata = error_info.get(
+                "metadata"
+            )
+
+            diagnostic = (
+                f"OpenRouter HTTP {response.status_code} "
+                f"(code {code}): {message}"
+            )
+
+            if metadata:
+                diagnostic += f" | metadata: {metadata}"
+
+            raise RuntimeError(diagnostic)
 
         except ValueError:
-            pass
-
-        raise RuntimeError(
-            f"OpenRouter HTTP "
-            f"{response.status_code}: "
-            f"{response.text[:500]}"
-        )
-
-    # --------------------------------------------------------
-    # PARSE RESPONSE
-    # --------------------------------------------------------
+            raise RuntimeError(
+                f"OpenRouter HTTP {response.status_code}: "
+                f"{response.text[:1000]}"
+            )
 
     try:
         data = response.json()
@@ -189,41 +176,41 @@ def generate_website(prompt):
     choices = data.get("choices", [])
 
     if not choices:
+        print()
+        print("========== EMPTY CHOICES DIAGNOSTIC ==========")
+        print(json.dumps(data, indent=2)[:5000])
+        print("==============================================")
+        print()
+
         raise RuntimeError(
             "OpenRouter returned no choices."
         )
 
-    message = choices[0].get(
-        "message",
-        {}
-    )
-
-    content = message.get(
-        "content"
-    )
+    message = choices[0].get("message", {})
+    content = message.get("content")
 
     if not content:
+        print()
+        print("========== EMPTY CONTENT DIAGNOSTIC ==========")
+        print(json.dumps(data, indent=2)[:5000])
+        print("==============================================")
+        print()
+
         raise RuntimeError(
             "AI returned an empty response."
         )
 
+    print("OpenRouter response received successfully.")
+    print("Generated characters:", len(content))
+
     return clean_ai_output(content)
 
 
-# ============================================================
-# SITE PATH HELPERS
-# ============================================================
-
 def get_site_directory(site_id):
-
-    return os.path.join(
-        SITES_DIR,
-        site_id
-    )
+    return os.path.join(SITES_DIR, site_id)
 
 
 def get_index_path(site_id):
-
     return os.path.join(
         get_site_directory(site_id),
         "index.html"
@@ -231,69 +218,38 @@ def get_index_path(site_id):
 
 
 def get_metadata_path(site_id):
-
     return os.path.join(
         get_site_directory(site_id),
         "metadata.json"
     )
 
 
-# ============================================================
-# METADATA
-# ============================================================
-
 def load_metadata(site_id):
+    metadata_path = get_metadata_path(site_id)
 
-    metadata_path = get_metadata_path(
-        site_id
-    )
-
-    if not os.path.isfile(
-        metadata_path
-    ):
-        return {
-            "site_id": site_id,
-            "published": False
-        }
+    if not os.path.isfile(metadata_path):
+        return {}
 
     try:
-
         with open(
             metadata_path,
             "r",
             encoding="utf-8"
         ) as file:
+            return json.load(file)
 
-            metadata = json.load(file)
-
-        return metadata
-
-    except (
-        json.JSONDecodeError,
-        OSError
-    ):
-
-        return {
-            "site_id": site_id,
-            "published": False
-        }
+    except (OSError, json.JSONDecodeError):
+        return {}
 
 
-def save_metadata(
-    site_id,
-    metadata
-):
-
-    metadata_path = get_metadata_path(
-        site_id
-    )
+def save_metadata(site_id, metadata):
+    metadata_path = get_metadata_path(site_id)
 
     with open(
         metadata_path,
         "w",
         encoding="utf-8"
     ) as file:
-
         json.dump(
             metadata,
             file,
@@ -301,61 +257,34 @@ def save_metadata(
         )
 
 
-# ============================================================
-# HOME
-# ============================================================
-
 @app.route("/")
 def index():
-
-    return render_template(
-        "index.html"
-    )
+    return render_template("index.html")
 
 
-# ============================================================
-# GENERATE WEBSITE
-# ============================================================
-
-@app.route(
-    "/generate",
-    methods=["POST"]
-)
+@app.route("/generate", methods=["POST"])
 def generate():
-
-    data = request.get_json(
-        silent=True
-    ) or {}
+    data = request.get_json(silent=True) or {}
 
     prompt = data.get(
         "prompt",
         ""
     ).strip()
 
-    # --------------------------------------------------------
-    # VALIDATION
-    # --------------------------------------------------------
-
     if not prompt:
-
         return jsonify({
             "success": False,
-            "error":
-                "Please describe the website you want."
+            "error": "Please describe the website you want."
         }), 400
 
     if len(prompt) > 5000:
-
         return jsonify({
             "success": False,
-            "error":
+            "error": (
                 "Prompt is too long. "
                 "Keep it under 5000 characters."
+            )
         }), 400
-
-    # --------------------------------------------------------
-    # LOG
-    # --------------------------------------------------------
 
     print()
     print("=" * 60)
@@ -364,18 +293,10 @@ def generate():
     print("Prompt:", prompt)
     print("=" * 60)
 
-    # --------------------------------------------------------
-    # AI GENERATION
-    # --------------------------------------------------------
-
     try:
-
-        website_html = generate_website(
-            prompt
-        )
+        website_html = generate_website(prompt)
 
     except Exception as error:
-
         print()
         print("GENERATION ERROR:")
         print(error)
@@ -386,14 +307,10 @@ def generate():
             "error": str(error)
         }), 500
 
-    # --------------------------------------------------------
-    # CREATE SITE ID
-    # --------------------------------------------------------
-
     site_id = uuid.uuid4().hex[:8]
 
-    site_directory = (
-        get_site_directory(site_id)
+    site_directory = get_site_directory(
+        site_id
     )
 
     os.makedirs(
@@ -401,12 +318,8 @@ def generate():
         exist_ok=True
     )
 
-    # --------------------------------------------------------
-    # SAVE HTML
-    # --------------------------------------------------------
-
-    index_path = (
-        get_index_path(site_id)
+    index_path = get_index_path(
+        site_id
     )
 
     with open(
@@ -414,22 +327,12 @@ def generate():
         "w",
         encoding="utf-8"
     ) as file:
-
-        file.write(
-            website_html
-        )
-
-    # --------------------------------------------------------
-    # INITIAL METADATA
-    # --------------------------------------------------------
+        file.write(website_html)
 
     metadata = {
         "site_id": site_id,
-
         "published": False,
-
         "prompt": prompt,
-
         "model": MODEL
     }
 
@@ -437,10 +340,6 @@ def generate():
         site_id,
         metadata
     )
-
-    # --------------------------------------------------------
-    # LOG
-    # --------------------------------------------------------
 
     print()
     print("Website generated successfully!")
@@ -450,124 +349,64 @@ def generate():
     print("Published:", False)
     print()
 
-    # --------------------------------------------------------
-    # RESPONSE
-    # --------------------------------------------------------
-
     return jsonify({
-
         "success": True,
-
-        "site_id":
-            site_id,
-
-        "url":
-            f"/site/{site_id}",
-
-        "published_url":
-            f"/p/{site_id}",
-
-        "published":
-            False
+        "site_id": site_id,
+        "url": f"/site/{site_id}",
+        "preview_url": f"/site/{site_id}",
+        "published_url": f"/p/{site_id}"
     })
 
 
-# ============================================================
-# PREVIEW GENERATED WEBSITE
-# ============================================================
-
-@app.route(
-    "/site/<site_id>"
-)
+@app.route("/site/<site_id>")
 def view_site(site_id):
-
-    index_path = (
-        get_index_path(site_id)
+    site_path = get_index_path(
+        site_id
     )
 
-    if not os.path.isfile(
-        index_path
-    ):
-
-        return (
-            "Site not found",
-            404
-        )
+    if not os.path.isfile(site_path):
+        return "Site not found", 404
 
     with open(
-        index_path,
+        site_path,
         "r",
         encoding="utf-8"
     ) as file:
-
         website = file.read()
 
     return website
 
 
-# ============================================================
-# PUBLISH WEBSITE
-# ============================================================
-
-@app.route(
-    "/publish",
-    methods=["POST"]
-)
+@app.route("/publish", methods=["POST"])
 def publish():
-
-    data = request.get_json(
-        silent=True
-    ) or {}
+    data = request.get_json(silent=True) or {}
 
     site_id = data.get(
         "site_id",
         ""
     ).strip()
 
-    # --------------------------------------------------------
-    # VALIDATION
-    # --------------------------------------------------------
-
     if not site_id:
-
         return jsonify({
             "success": False,
-            "error":
-                "Missing site ID."
+            "error": "Missing site ID."
         }), 400
 
-    index_path = (
-        get_index_path(site_id)
+    index_path = get_index_path(
+        site_id
     )
 
-    # --------------------------------------------------------
-    # CHECK WEBSITE
-    # --------------------------------------------------------
-
-    if not os.path.isfile(
-        index_path
-    ):
-
+    if not os.path.isfile(index_path):
         return jsonify({
             "success": False,
-            "error":
-                "Website not found."
+            "error": "Site not found."
         }), 404
-
-    # --------------------------------------------------------
-    # LOAD EXISTING METADATA
-    # --------------------------------------------------------
 
     metadata = load_metadata(
         site_id
     )
 
-    # --------------------------------------------------------
-    # PUBLISH
-    # --------------------------------------------------------
-
     metadata["site_id"] = site_id
-
     metadata["published"] = True
 
     save_metadata(
@@ -575,71 +414,23 @@ def publish():
         metadata
     )
 
-    # --------------------------------------------------------
-    # LOG
-    # --------------------------------------------------------
-
     print()
     print("=" * 60)
     print("WEBSITE PUBLISHED")
     print("Site ID:", site_id)
-    print(
-        "URL:",
-        f"/p/{site_id}"
-    )
+    print("URL:", f"/p/{site_id}")
     print("=" * 60)
     print()
 
-    # --------------------------------------------------------
-    # RESPONSE
-    # --------------------------------------------------------
-
     return jsonify({
-
-        "success":
-            True,
-
-        "site_id":
-            site_id,
-
-        "url":
-            f"/p/{site_id}",
-
-        "published":
-            True
+        "success": True,
+        "site_id": site_id,
+        "url": f"/p/{site_id}"
     })
 
 
-# ============================================================
-# PUBLISHED WEBSITE
-# ============================================================
-
-@app.route(
-    "/p/<site_id>"
-)
+@app.route("/p/<site_id>")
 def published_site(site_id):
-
-    index_path = (
-        get_index_path(site_id)
-    )
-
-    # --------------------------------------------------------
-    # WEBSITE EXISTS?
-    # --------------------------------------------------------
-
-    if not os.path.isfile(
-        index_path
-    ):
-
-        return (
-            "Published website not found.",
-            404
-        )
-
-    # --------------------------------------------------------
-    # CHECK PUBLISH STATE
-    # --------------------------------------------------------
-
     metadata = load_metadata(
         site_id
     )
@@ -648,197 +439,116 @@ def published_site(site_id):
         "published",
         False
     ):
+        return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Website Not Published</title>
+            <style>
+                body {
+                    margin: 0;
+                    min-height: 100vh;
+                    display: grid;
+                    place-items: center;
+                    font-family: system-ui, sans-serif;
+                    background: #0b0b0f;
+                    color: white;
+                }
 
-        return (
-            """
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Not Published</title>
-                <meta
-                    name="viewport"
-                    content="width=device-width,
-                             initial-scale=1.0"
-                >
-                <style>
-                    body {
-                        margin: 0;
-                        min-height: 100vh;
-                        display: grid;
-                        place-items: center;
-                        background: #08090d;
-                        color: white;
-                        font-family: system-ui;
-                        text-align: center;
-                        padding: 20px;
-                    }
+                .box {
+                    text-align: center;
+                    padding: 40px;
+                }
 
-                    .box {
-                        max-width: 500px;
-                    }
+                h1 {
+                    margin-bottom: 10px;
+                }
 
-                    h1 {
-                        font-size: 32px;
-                    }
+                p {
+                    color: #999;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="box">
+                <h1>Website Not Published</h1>
+                <p>This website has not been published yet.</p>
+            </div>
+        </body>
+        </html>
+        """, 403
 
-                    p {
-                        color: #929aaa;
-                    }
-                </style>
-            </head>
+    site_path = get_index_path(
+        site_id
+    )
 
-            <body>
-
-                <div class="box">
-
-                    <h1>
-                        Website not published
-                    </h1>
-
-                    <p>
-                        This website exists,
-                        but it has not been
-                        published yet.
-                    </p>
-
-                </div>
-
-            </body>
-            </html>
-            """,
-            403
-        )
-
-    # --------------------------------------------------------
-    # SERVE WEBSITE
-    # --------------------------------------------------------
+    if not os.path.isfile(site_path):
+        return "Site not found", 404
 
     with open(
-        index_path,
+        site_path,
         "r",
         encoding="utf-8"
     ) as file:
-
         website = file.read()
 
     return website
 
 
-# ============================================================
-# SITE STATUS
-# ============================================================
-
-@app.route(
-    "/api/site/<site_id>"
-)
-def site_status(site_id):
-
-    index_path = (
-        get_index_path(site_id)
-    )
-
-    if not os.path.isfile(
-        index_path
-    ):
-
-        return jsonify({
-            "success": False,
-            "error":
-                "Site not found."
-        }), 404
-
+@app.route("/api/site/<site_id>")
+def site_api(site_id):
     metadata = load_metadata(
         site_id
     )
 
+    if not metadata:
+        return jsonify({
+            "success": False,
+            "error": "Site not found."
+        }), 404
+
     return jsonify({
-
-        "success":
-            True,
-
-        "site_id":
-            site_id,
-
-        "published":
-            metadata.get(
-                "published",
-                False
-            ),
-
-        "preview_url":
-            f"/site/{site_id}",
-
-        "published_url":
-            f"/p/{site_id}"
+        "success": True,
+        "site_id": site_id,
+        "published": metadata.get(
+            "published",
+            False
+        ),
+        "preview_url": f"/site/{site_id}",
+        "published_url": f"/p/{site_id}"
     })
 
 
-# ============================================================
-# HEALTH
-# ============================================================
-
-@app.route(
-    "/health"
-)
+@app.route("/health")
 def health():
-
     return jsonify({
-
-        "status":
-            "ok",
-
-        "service":
-            "QntaSite",
-
-        "ai_configured":
-            bool(
-                OPENROUTER_API_KEY
-            ),
-
-        "model":
-            MODEL,
-
-        "storage":
-            SITES_DIR
+        "status": "ok",
+        "service": "QntaSite",
+        "ai_configured": bool(
+            OPENROUTER_API_KEY
+        ),
+        "model": MODEL
     })
 
-
-# ============================================================
-# ERROR HANDLERS
-# ============================================================
 
 @app.errorhandler(404)
 def not_found(error):
-
     return jsonify({
-
-        "success":
-            False,
-
-        "error":
-            "Route not found."
+        "success": False,
+        "error": "Route not found."
     }), 404
 
 
 @app.errorhandler(500)
-def internal_error(error):
-
+def server_error(error):
     return jsonify({
-
-        "success":
-            False,
-
-        "error":
-            "Internal server error."
+        "success": False,
+        "error": "Internal server error."
     }), 500
 
 
-# ============================================================
-# START SERVER
-# ============================================================
-
 if __name__ == "__main__":
-
     print()
     print("=" * 60)
     print("QntaSite")
@@ -851,10 +561,7 @@ if __name__ == "__main__":
         bool(OPENROUTER_API_KEY)
     )
     print()
-    print(
-        "Local URL:",
-        "http://127.0.0.1:5000"
-    )
+    print("Local URL: http://127.0.0.1:5000")
     print()
     print("=" * 60)
     print()
