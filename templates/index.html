@@ -1,0 +1,2004 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width,
+                 initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#08090d"
+    >
+
+    <title>QntaSite</title>
+
+
+    <style>
+
+        /* ==================================================
+           RESET
+        ================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            min-height: 100vh;
+
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at 50% -10%,
+                    #1b2642 0%,
+                    #0d1018 32%,
+                    #08090d 70%,
+                    #06070a 100%
+                );
+
+            color: #f5f7fb;
+        }
+
+
+        button,
+        textarea {
+            font: inherit;
+        }
+
+
+        button {
+            cursor: pointer;
+        }
+
+
+        /* ==================================================
+           NAVBAR
+        ================================================== */
+
+        .nav {
+
+            height: 70px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding:
+                0 28px;
+
+            border-bottom:
+                1px solid
+                rgba(255,255,255,0.08);
+
+            background:
+                rgba(7,8,12,0.72);
+
+            backdrop-filter:
+                blur(18px);
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 100;
+        }
+
+
+        .brand {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            font-size: 19px;
+
+            font-weight: 750;
+
+            letter-spacing:
+                -0.4px;
+        }
+
+
+        .brand-mark {
+
+            width: 32px;
+
+            height: 32px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 9px;
+
+            background: #ffffff;
+
+            color: #08090d;
+
+            font-weight: 900;
+
+            box-shadow:
+                0 0 30px
+                rgba(255,255,255,0.08);
+        }
+
+
+        .status {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            color: #9ca6b8;
+
+            font-size: 13px;
+        }
+
+
+        .status-dot {
+
+            width: 7px;
+
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #76e39a;
+
+            box-shadow:
+                0 0 10px
+                rgba(118,227,154,0.7);
+        }
+
+
+        /* ==================================================
+           MAIN
+        ================================================== */
+
+        .container {
+
+            width:
+                min(
+                    920px,
+                    calc(100% - 32px)
+                );
+
+            margin:
+                0 auto;
+
+            padding:
+                92px 0 90px;
+        }
+
+
+        .hero {
+
+            text-align: center;
+        }
+
+
+        .eyebrow {
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            gap: 7px;
+
+            padding:
+                7px 12px;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.09);
+
+            border-radius:
+                999px;
+
+            color:
+                #aeb7c8;
+
+            background:
+                rgba(255,255,255,0.025);
+
+            font-size:
+                12px;
+
+            font-weight:
+                650;
+
+            text-transform:
+                uppercase;
+
+            letter-spacing:
+                0.8px;
+        }
+
+
+        h1 {
+
+            margin:
+                23px 0 17px;
+
+            font-size:
+                clamp(
+                    43px,
+                    7vw,
+                    76px
+                );
+
+            line-height:
+                0.98;
+
+            letter-spacing:
+                -3.8px;
+        }
+
+
+        .subtitle {
+
+            max-width:
+                650px;
+
+            margin:
+                0 auto;
+
+            color:
+                #9ea8ba;
+
+            font-size:
+                18px;
+
+            line-height:
+                1.65;
+        }
+
+
+        /* ==================================================
+           COMPOSER
+        ================================================== */
+
+        .composer {
+
+            margin-top:
+                44px;
+
+            padding:
+                14px;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.10);
+
+            border-radius:
+                21px;
+
+            background:
+                rgba(255,255,255,0.035);
+
+            box-shadow:
+                0 25px 80px
+                rgba(0,0,0,0.38);
+
+            transition:
+                border-color 0.2s,
+                box-shadow 0.2s;
+        }
+
+
+        .composer:focus-within {
+
+            border-color:
+                rgba(255,255,255,0.18);
+
+            box-shadow:
+                0 30px 90px
+                rgba(0,0,0,0.48);
+        }
+
+
+        textarea {
+
+            display:
+                block;
+
+            width:
+                100%;
+
+            min-height:
+                155px;
+
+            resize:
+                vertical;
+
+            border:
+                0;
+
+            outline:
+                none;
+
+            padding:
+                14px;
+
+            background:
+                transparent;
+
+            color:
+                #ffffff;
+
+            font-size:
+                16px;
+
+            line-height:
+                1.65;
+        }
+
+
+        textarea::placeholder {
+            color:
+                #687286;
+        }
+
+
+        .composer-bottom {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                space-between;
+
+            gap:
+                15px;
+
+            padding:
+                8px 4px 2px;
+        }
+
+
+        .hint {
+
+            color:
+                #667085;
+
+            font-size:
+                12px;
+        }
+
+
+        .generate-btn {
+
+            border:
+                0;
+
+            padding:
+                12px 21px;
+
+            border-radius:
+                11px;
+
+            background:
+                #ffffff;
+
+            color:
+                #08090d;
+
+            font-weight:
+                750;
+
+            transition:
+                transform 0.15s,
+                opacity 0.15s,
+                background 0.15s;
+        }
+
+
+        .generate-btn:hover {
+            transform:
+                translateY(-1px);
+        }
+
+
+        .generate-btn:active {
+            transform:
+                translateY(0);
+        }
+
+
+        .generate-btn:disabled {
+
+            opacity:
+                0.5;
+
+            cursor:
+                not-allowed;
+
+            transform:
+                none;
+        }
+
+
+        /* ==================================================
+           EXAMPLES
+        ================================================== */
+
+        .examples {
+
+            display:
+                flex;
+
+            justify-content:
+                center;
+
+            flex-wrap:
+                wrap;
+
+            gap:
+                8px;
+
+            margin-top:
+                18px;
+        }
+
+
+        .example {
+
+            padding:
+                8px 12px;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.08);
+
+            border-radius:
+                999px;
+
+            background:
+                rgba(255,255,255,0.025);
+
+            color:
+                #9ca6b8;
+
+            font-size:
+                12px;
+
+            transition:
+                0.15s;
+        }
+
+
+        .example:hover {
+
+            color:
+                #ffffff;
+
+            border-color:
+                rgba(255,255,255,0.18);
+
+            background:
+                rgba(255,255,255,0.05);
+        }
+
+
+        /* ==================================================
+           LOADING
+        ================================================== */
+
+        .loading {
+
+            display:
+                none;
+
+            margin-top:
+                26px;
+
+            text-align:
+                center;
+
+            color:
+                #8994a8;
+
+            font-size:
+                14px;
+        }
+
+
+        .loading-inner {
+
+            display:
+                inline-flex;
+
+            align-items:
+                center;
+
+            gap:
+                9px;
+        }
+
+
+        .loader {
+
+            width:
+                15px;
+
+            height:
+                15px;
+
+            border:
+                2px solid
+                rgba(255,255,255,0.15);
+
+            border-top-color:
+                #ffffff;
+
+            border-radius:
+                50%;
+
+            animation:
+                spin 0.8s linear infinite;
+        }
+
+
+        @keyframes spin {
+
+            to {
+                transform:
+                    rotate(360deg);
+            }
+        }
+
+
+        /* ==================================================
+           ERROR
+        ================================================== */
+
+        .error {
+
+            display:
+                none;
+
+            margin-top:
+                22px;
+
+            padding:
+                14px;
+
+            border:
+                1px solid
+                rgba(255,80,80,0.16);
+
+            border-radius:
+                11px;
+
+            background:
+                rgba(255,80,80,0.07);
+
+            color:
+                #ff9d9d;
+
+            font-size:
+                13px;
+
+            line-height:
+                1.5;
+        }
+
+
+        /* ==================================================
+           RESULT
+        ================================================== */
+
+        .result {
+
+            display:
+                none;
+
+            margin-top:
+                38px;
+
+            padding:
+                23px;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.09);
+
+            border-radius:
+                18px;
+
+            background:
+                rgba(255,255,255,0.035);
+
+            box-shadow:
+                0 18px 60px
+                rgba(0,0,0,0.25);
+        }
+
+
+        .result-header {
+
+            display:
+                flex;
+
+            align-items:
+                flex-start;
+
+            justify-content:
+                space-between;
+
+            gap:
+                15px;
+        }
+
+
+        .result-title {
+
+            font-size:
+                15px;
+
+            font-weight:
+                750;
+        }
+
+
+        .result-subtitle {
+
+            margin-top:
+                6px;
+
+            color:
+                #818c9f;
+
+            font-size:
+                13px;
+        }
+
+
+        .site-id {
+
+            padding:
+                6px 9px;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.08);
+
+            border-radius:
+                8px;
+
+            color:
+                #788396;
+
+            font-family:
+                monospace;
+
+            font-size:
+                11px;
+        }
+
+
+        .result-actions {
+
+            display:
+                flex;
+
+            flex-wrap:
+                wrap;
+
+            gap:
+                10px;
+
+            margin-top:
+                21px;
+        }
+
+
+        .action {
+
+            border:
+                1px solid
+                rgba(255,255,255,0.10);
+
+            padding:
+                10px 15px;
+
+            border-radius:
+                10px;
+
+            background:
+                rgba(255,255,255,0.04);
+
+            color:
+                #ffffff;
+
+            transition:
+                0.15s;
+        }
+
+
+        .action:hover {
+
+            background:
+                rgba(255,255,255,0.08);
+
+            border-color:
+                rgba(255,255,255,0.16);
+        }
+
+
+        .publish {
+
+            background:
+                #ffffff;
+
+            color:
+                #090a0e;
+
+            font-weight:
+                750;
+        }
+
+
+        .publish:hover {
+
+            background:
+                #e9edf5;
+        }
+
+
+        .publish:disabled {
+
+            opacity:
+                0.55;
+
+            cursor:
+                not-allowed;
+        }
+
+
+        /* ==================================================
+           PUBLISHED CARD
+        ================================================== */
+
+        .published {
+
+            display:
+                none;
+
+            margin-top:
+                20px;
+
+            padding:
+                16px;
+
+            border:
+                1px solid
+                rgba(120,180,255,0.18);
+
+            border-radius:
+                13px;
+
+            background:
+                rgba(100,150,255,0.055);
+        }
+
+
+        .published-head {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            gap:
+                8px;
+
+            color:
+                #dce7ff;
+
+            font-size:
+                13px;
+
+            font-weight:
+                700;
+        }
+
+
+        .published-dot {
+
+            width:
+                7px;
+
+            height:
+                7px;
+
+            border-radius:
+                50%;
+
+            background:
+                #79e3a0;
+
+            box-shadow:
+                0 0 9px
+                rgba(121,227,160,0.7);
+        }
+
+
+        .published-label {
+
+            margin-top:
+                12px;
+
+            color:
+                #7f8ba0;
+
+            font-size:
+                11px;
+        }
+
+
+        .published-url {
+
+            margin-top:
+                5px;
+
+            color:
+                #ffffff;
+
+            font-family:
+                monospace;
+
+            font-size:
+                13px;
+
+            line-height:
+                1.5;
+
+            word-break:
+                break-all;
+        }
+
+
+        .copy-btn {
+
+            margin-top:
+                12px;
+
+            padding:
+                8px 12px;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.08);
+
+            border-radius:
+                8px;
+
+            background:
+                rgba(255,255,255,0.06);
+
+            color:
+                #ffffff;
+
+            font-size:
+                12px;
+        }
+
+
+        .copy-btn:hover {
+
+            background:
+                rgba(255,255,255,0.10);
+        }
+
+
+        /* ==================================================
+           FOOTER
+        ================================================== */
+
+        .footer {
+
+            margin-top:
+                70px;
+
+            text-align:
+                center;
+
+            color:
+                #4f5869;
+
+            font-size:
+                12px;
+        }
+
+
+        /* ==================================================
+           MOBILE
+        ================================================== */
+
+        @media (max-width: 600px) {
+
+            .nav {
+
+                padding:
+                    0 16px;
+            }
+
+
+            .status {
+
+                display:
+                    none;
+            }
+
+
+            .container {
+
+                width:
+                    calc(100% - 20px);
+
+                padding:
+                    62px 0 65px;
+            }
+
+
+            h1 {
+
+                font-size:
+                    clamp(
+                        42px,
+                        13vw,
+                        58px
+                    );
+
+                letter-spacing:
+                    -2.8px;
+            }
+
+
+            .subtitle {
+
+                font-size:
+                    16px;
+            }
+
+
+            .composer {
+
+                margin-top:
+                    32px;
+
+                border-radius:
+                    17px;
+            }
+
+
+            textarea {
+
+                min-height:
+                    145px;
+            }
+
+
+            .composer-bottom {
+
+                align-items:
+                    stretch;
+
+                flex-direction:
+                    column;
+            }
+
+
+            .hint {
+
+                text-align:
+                    center;
+            }
+
+
+            .generate-btn {
+
+                width:
+                    100%;
+            }
+
+
+            .result-header {
+
+                flex-direction:
+                    column;
+            }
+
+
+            .site-id {
+
+                align-self:
+                    flex-start;
+            }
+
+
+            .result-actions {
+
+                flex-direction:
+                    column;
+            }
+
+
+            .action {
+
+                width:
+                    100%;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- ==================================================
+         NAVIGATION
+    ================================================== -->
+
+    <nav class="nav">
+
+        <div class="brand">
+
+            <div class="brand-mark">
+                Q
+            </div>
+
+            QntaSite
+
+        </div>
+
+
+        <div class="status">
+
+            <span class="status-dot"></span>
+
+            AI website builder
+
+        </div>
+
+    </nav>
+
+
+    <!-- ==================================================
+         MAIN
+    ================================================== -->
+
+    <main class="container">
+
+
+        <section class="hero">
+
+
+            <div class="eyebrow">
+
+                AI website builder
+
+            </div>
+
+
+            <h1>
+
+                Build a website
+                <br>
+                from an idea.
+
+            </h1>
+
+
+            <p class="subtitle">
+
+                Describe what you want to create.
+                QntaSite turns your idea into a
+                complete website.
+
+            </p>
+
+
+            <!-- ==================================================
+                 COMPOSER
+            ================================================== -->
+
+            <div class="composer">
+
+
+                <textarea
+                    id="prompt"
+                    maxlength="5000"
+                    placeholder="Describe the website you want..."
+                ></textarea>
+
+
+                <div class="composer-bottom">
+
+
+                    <div class="hint">
+
+                        Ctrl + Enter to generate
+
+                    </div>
+
+
+                    <button
+                        class="generate-btn"
+                        id="generateBtn"
+                        onclick="generateWebsite()"
+                    >
+
+                        Generate
+
+                    </button>
+
+
+                </div>
+
+
+            </div>
+
+
+            <!-- ==================================================
+                 EXAMPLE PROMPTS
+            ================================================== -->
+
+            <div class="examples">
+
+
+                <button
+                    class="example"
+                    onclick="useExample(
+                        'Create a modern AI company landing page'
+                    )"
+                >
+
+                    AI company landing page
+
+                </button>
+
+
+                <button
+                    class="example"
+                    onclick="useExample(
+                        'Create a futuristic robotics website for QntaBOT v2.0'
+                    )"
+                >
+
+                    Futuristic robotics website
+
+                </button>
+
+
+                <button
+                    class="example"
+                    onclick="useExample(
+                        'Create a clean personal developer portfolio'
+                    )"
+                >
+
+                    Personal portfolio
+
+                </button>
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- ==================================================
+             LOADING
+        ================================================== -->
+
+        <div
+            class="loading"
+            id="loading"
+        >
+
+            <div class="loading-inner">
+
+                <div class="loader"></div>
+
+                Generating your website...
+
+            </div>
+
+        </div>
+
+
+        <!-- ==================================================
+             ERROR
+        ================================================== -->
+
+        <div
+            class="error"
+            id="error"
+        ></div>
+
+
+        <!-- ==================================================
+             RESULT
+        ================================================== -->
+
+        <section
+            class="result"
+            id="result"
+        >
+
+
+            <div class="result-header">
+
+
+                <div>
+
+                    <div class="result-title">
+
+                        Website generated
+
+                    </div>
+
+
+                    <div class="result-subtitle">
+
+                        Your website is ready
+                        for preview or publishing.
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="site-id"
+                    id="siteId"
+                >
+
+                    site
+
+                </div>
+
+
+            </div>
+
+
+            <div class="result-actions">
+
+
+                <button
+                    class="action"
+                    onclick="openPreview()"
+                >
+
+                    Open Preview
+
+                </button>
+
+
+                <button
+                    class="action publish"
+                    id="publishBtn"
+                    onclick="publishWebsite()"
+                >
+
+                    Publish
+
+                </button>
+
+
+            </div>
+
+
+            <!-- ==================================================
+                 PUBLISHED
+            ================================================== -->
+
+            <div
+                class="published"
+                id="published"
+            >
+
+
+                <div class="published-head">
+
+                    <span class="published-dot"></span>
+
+                    Website published
+
+                </div>
+
+
+                <div class="published-label">
+
+                    Public URL
+
+                </div>
+
+
+                <div
+                    class="published-url"
+                    id="publishedUrl"
+                ></div>
+
+
+                <button
+                    class="copy-btn"
+                    id="copyBtn"
+                    onclick="copyPublishedUrl()"
+                >
+
+                    Copy URL
+
+                </button>
+
+
+            </div>
+
+
+        </section>
+
+
+        <div class="footer">
+
+            Built with QntaSite
+
+        </div>
+
+
+    </main>
+
+
+    <!-- ==================================================
+         JAVASCRIPT
+    ================================================== -->
+
+    <script>
+
+
+        // =================================================
+        // STATE
+        // =================================================
+
+        let currentSiteId = null;
+
+        let currentPreviewUrl = null;
+
+        let currentPublishedUrl = null;
+
+
+        // =================================================
+        // DOM
+        // =================================================
+
+        const promptInput =
+            document.getElementById(
+                "prompt"
+            );
+
+
+        const generateBtn =
+            document.getElementById(
+                "generateBtn"
+            );
+
+
+        const loading =
+            document.getElementById(
+                "loading"
+            );
+
+
+        const result =
+            document.getElementById(
+                "result"
+            );
+
+
+        const errorBox =
+            document.getElementById(
+                "error"
+            );
+
+
+        const publishBtn =
+            document.getElementById(
+                "publishBtn"
+            );
+
+
+        const published =
+            document.getElementById(
+                "published"
+            );
+
+
+        const publishedUrl =
+            document.getElementById(
+                "publishedUrl"
+            );
+
+
+        const siteId =
+            document.getElementById(
+                "siteId"
+            );
+
+
+        const copyBtn =
+            document.getElementById(
+                "copyBtn"
+            );
+
+
+        // =================================================
+        // EXAMPLE PROMPT
+        // =================================================
+
+        function useExample(text) {
+
+            promptInput.value =
+                text;
+
+            promptInput.focus();
+        }
+
+
+        // =================================================
+        // ERROR
+        // =================================================
+
+        function showError(message) {
+
+            errorBox.textContent =
+                message;
+
+            errorBox.style.display =
+                "block";
+        }
+
+
+        function clearError() {
+
+            errorBox.textContent =
+                "";
+
+            errorBox.style.display =
+                "none";
+        }
+
+
+        // =================================================
+        // GENERATE
+        // =================================================
+
+        async function generateWebsite() {
+
+
+            const prompt =
+                promptInput.value.trim();
+
+
+            if (!prompt) {
+
+                showError(
+                    "Describe the website you want first."
+                );
+
+                promptInput.focus();
+
+                return;
+            }
+
+
+            clearError();
+
+
+            // Reset old result
+
+            result.style.display =
+                "none";
+
+            published.style.display =
+                "none";
+
+
+            currentSiteId =
+                null;
+
+            currentPreviewUrl =
+                null;
+
+            currentPublishedUrl =
+                null;
+
+
+            // Loading state
+
+            generateBtn.disabled =
+                true;
+
+            generateBtn.textContent =
+                "Generating...";
+
+            loading.style.display =
+                "block";
+
+
+            try {
+
+
+                const response =
+                    await fetch(
+                        "/generate",
+                        {
+                            method:
+                                "POST",
+
+                            headers:
+                                {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                            body:
+                                JSON.stringify(
+                                    {
+                                        prompt:
+                                            prompt
+                                    }
+                                )
+                        }
+                    );
+
+
+                let data;
+
+
+                try {
+
+                    data =
+                        await response.json();
+
+                } catch (error) {
+
+                    throw new Error(
+                        "Server returned an invalid response."
+                    );
+                }
+
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+
+                    throw new Error(
+                        data.error ||
+                        "Website generation failed."
+                    );
+                }
+
+
+                // Store site
+
+                currentSiteId =
+                    data.site_id;
+
+
+                currentPreviewUrl =
+                    data.url;
+
+
+                // Update UI
+
+                siteId.textContent =
+                    "ID: " +
+                    currentSiteId;
+
+
+                publishBtn.disabled =
+                    false;
+
+                publishBtn.textContent =
+                    "Publish";
+
+
+                result.style.display =
+                    "block";
+
+
+                // Scroll
+
+                setTimeout(
+                    function() {
+
+                        result.scrollIntoView({
+                            behavior:
+                                "smooth",
+
+                            block:
+                                "center"
+                        });
+
+                    },
+                    100
+                );
+
+
+            } catch (error) {
+
+
+                showError(
+                    error.message
+                );
+
+
+            } finally {
+
+
+                generateBtn.disabled =
+                    false;
+
+                generateBtn.textContent =
+                    "Generate";
+
+                loading.style.display =
+                    "none";
+            }
+        }
+
+
+        // =================================================
+        // PREVIEW
+        // =================================================
+
+        function openPreview() {
+
+
+            if (!currentPreviewUrl) {
+
+                showError(
+                    "No preview is available."
+                );
+
+                return;
+            }
+
+
+            window.open(
+                currentPreviewUrl,
+                "_blank"
+            );
+        }
+
+
+        // =================================================
+        // PUBLISH
+        // =================================================
+
+        async function publishWebsite() {
+
+
+            if (!currentSiteId) {
+
+                showError(
+                    "Generate a website first."
+                );
+
+                return;
+            }
+
+
+            clearError();
+
+
+            publishBtn.disabled =
+                true;
+
+            publishBtn.textContent =
+                "Publishing...";
+
+
+            try {
+
+
+                const response =
+                    await fetch(
+                        "/publish",
+                        {
+                            method:
+                                "POST",
+
+                            headers:
+                                {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                            body:
+                                JSON.stringify(
+                                    {
+                                        site_id:
+                                            currentSiteId
+                                    }
+                                )
+                        }
+                    );
+
+
+                let data;
+
+
+                try {
+
+                    data =
+                        await response.json();
+
+                } catch (error) {
+
+                    throw new Error(
+                        "Server returned an invalid response."
+                    );
+                }
+
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+
+                    throw new Error(
+                        data.error ||
+                        "Publishing failed."
+                    );
+                }
+
+
+                // Build absolute URL
+
+                currentPublishedUrl =
+                    window.location.origin +
+                    data.url;
+
+
+                // Show URL
+
+                publishedUrl.textContent =
+                    currentPublishedUrl;
+
+
+                published.style.display =
+                    "block";
+
+
+                publishBtn.textContent =
+                    "Published";
+
+
+                publishBtn.disabled =
+                    true;
+
+
+                // Scroll to URL
+
+                setTimeout(
+                    function() {
+
+                        published.scrollIntoView({
+                            behavior:
+                                "smooth",
+
+                            block:
+                                "center"
+                        });
+
+                    },
+                    100
+                );
+
+
+            } catch (error) {
+
+
+                showError(
+                    error.message
+                );
+
+
+                publishBtn.disabled =
+                    false;
+
+                publishBtn.textContent =
+                    "Publish";
+            }
+        }
+
+
+        // =================================================
+        // COPY URL
+        // =================================================
+
+        async function copyPublishedUrl() {
+
+
+            if (!currentPublishedUrl) {
+                return;
+            }
+
+
+            try {
+
+
+                await navigator.clipboard.writeText(
+                    currentPublishedUrl
+                );
+
+
+                copyBtn.textContent =
+                    "Copied";
+
+
+                setTimeout(
+                    function() {
+
+                        copyBtn.textContent =
+                            "Copy URL";
+
+                    },
+                    1600
+                );
+
+
+            } catch (error) {
+
+
+                // Fallback for browsers
+                // that block clipboard API
+
+                const temp =
+                    document.createElement(
+                        "textarea"
+                    );
+
+
+                temp.value =
+                    currentPublishedUrl;
+
+
+                temp.style.position =
+                    "fixed";
+
+
+                temp.style.opacity =
+                    "0";
+
+
+                document.body.appendChild(
+                    temp
+                );
+
+
+                temp.focus();
+
+                temp.select();
+
+
+                try {
+
+                    document.execCommand(
+                        "copy"
+                    );
+
+                    copyBtn.textContent =
+                        "Copied";
+
+                } catch (copyError) {
+
+                    showError(
+                        "Could not copy the URL."
+                    );
+
+                }
+
+
+                temp.remove();
+
+
+                setTimeout(
+                    function() {
+
+                        copyBtn.textContent =
+                            "Copy URL";
+
+                    },
+                    1600
+                );
+            }
+        }
+
+
+        // =================================================
+        // KEYBOARD SHORTCUT
+        // =================================================
+
+        promptInput.addEventListener(
+            "keydown",
+            function(event) {
+
+
+                if (
+                    (event.ctrlKey ||
+                     event.metaKey) &&
+                    event.key === "Enter"
+                ) {
+
+                    event.preventDefault();
+
+                    generateWebsite();
+                }
+
+            }
+        );
+
+
+        // =================================================
+        // INITIAL FOCUS
+        // =================================================
+
+        window.addEventListener(
+            "load",
+            function() {
+
+                promptInput.focus();
+
+            }
+        );
+
+
+    </script>
+
+
+</body>
+
+</html>
