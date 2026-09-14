@@ -1,5 +1,10 @@
 .env
 __pycache__/
 *.pyc
+
+# QntaSite runtime database
+qntasite.db
+
+# Old generated-site storage
 sites/*
 !sites/.gitkeep
